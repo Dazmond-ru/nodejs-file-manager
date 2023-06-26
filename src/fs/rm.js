@@ -1,17 +1,17 @@
-import fs from 'fs/promises'
-import { cd } from './cd.js'
+import fsPromises from 'node:fs/promises'
+import { cd } from '../nav/cd.js'
 
 export const rm = async (currentPath, query) => {
   const inputPath = await cd(currentPath, query, false)
 
   try {
-    const inputPathCheck = await fs.lstat(inputPath)
+    const inputPathCheck = await fsPromises.lstat(inputPath)
     if (inputPathCheck.isFile()) {
-      await fs.unlink(inputPath)
+      await fsPromises.unlink(inputPath)
     } else {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
     }
   } catch {
-    return process.stdout.write('Operation failed\n')
+    console.log('Operation failed')
   }
 }

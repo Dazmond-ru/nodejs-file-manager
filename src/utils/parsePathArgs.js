@@ -1,35 +1,44 @@
 export const parsePathArgs = (inputPath) => {
   let isPathCorrect = true
 
-  if (inputPath.split(' ').length === 2 && !inputPath.includes('"'))
+  if (inputPath.split(' ').length === 2 && !inputPath.includes('"')) {
     isPathCorrect = true
-  if (inputPath.split(' ').length !== 2 && !inputPath.includes('"'))
+  }
+
+  if (inputPath.split(' ').length !== 2 && !inputPath.includes('"')) {
     isPathCorrect = false
-  if (inputPath.includes('"') && (inputPath.split('"').length - 1) % 2 === 1)
+  }
+
+  if (inputPath.includes('"') && (inputPath.split('"').length - 1) % 2 === 1) {
     isPathCorrect = false
-  if (inputPath.includes('"') && (inputPath.split('"').length - 1) % 2 === 0)
+  }
+
+  if (inputPath.includes('"') && (inputPath.split('"').length - 1) % 2 === 0) {
     isPathCorrect = true
-  let countMarks = 0
+  }
+
+  let countQuotes = 0
   let countSpace = 0
-  let divideIndex
+  let sepIndex = 0
+
   for (let i = 0; i < inputPath.length; i++) {
-    if (inputPath[i] === '"' && countMarks === 0) {
-      countMarks++
+    if (inputPath[i] === '"' && countQuotes === 0) {
+      countQuotes++
       continue
     }
 
-    if (inputPath[i] === '"' && countMarks === 1) {
-      countMarks--
+    if (inputPath[i] === '"' && countQuotes === 1) {
+      countQuotes--
       continue
     }
 
-    if (inputPath[i] === ' ' && countMarks === 0 && countSpace === 0) {
-      divideIndex = i
+    if (inputPath[i] === ' ' && countQuotes === 0 && countSpace === 0) {
+      sepIndex = i
       countSpace++
       continue
     }
 
-    if (inputPath[i] === ' ' && countMarks === 0 && countSpace !== 0) {
+    if (inputPath[i] === ' ' && countQuotes === 0 && countSpace !== 0) {
       isPathCorrect = false
       break
     }
@@ -37,8 +46,8 @@ export const parsePathArgs = (inputPath) => {
 
   if (isPathCorrect) {
     return {
-      firstArg: inputPath.substring(0, divideIndex),
-      secondArg: inputPath.substring(divideIndex + 1),
+      firstArg: inputPath.substring(0, sepIndex),
+      secondArg: inputPath.substring(sepIndex + 1),
     }
   } else {
     return { firstArg: null, secondArg: null }

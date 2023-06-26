@@ -1,7 +1,10 @@
-import fs from 'fs/promises'
+import { stat } from 'node:fs/promises'
 
-export const pathExists = (path) =>
-  fs.stat(path).then(
-    () => true,
-    () => false
-  )
+export const pathExists = async (path) => {
+  try {
+    await stat(path)
+    return true
+  } catch (error) {
+    return false
+  }
+}

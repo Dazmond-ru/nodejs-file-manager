@@ -1,19 +1,22 @@
-import fs from 'fs/promises'
+import fs from 'node:fs'
+import fsPromises from 'fs/promises'
 import path from 'node:path'
-import { createReadStream, createWriteStream } from 'node:fs'
+
 import { pipeline } from 'stream/promises'
 import { createBrotliCompress } from 'node:zlib'
+
+import { cd } from '../nav/cd.js'
 import { parsePathArgs } from '../utils/parsePathArgs.js'
-import { cd } from '../fs/cd.js'
 import { pathExists } from '../utils/pathExists.js'
 
 export const compress = async (currentPath, query) => {
-  const inputPath = path.normalize(query.slice(9))
+  const inputPath = path.normalize(query)
   const { firstArg, secondArg } = parsePathArgs(inputPath)
 
   if (firstArg && secondArg) {
     let firstArgNormalize = path.normalize(firstArg)
     let secondArgNormalize = path.normalize(secondArg)
+    
     const {
       dir: dirSecondArg,
       base: baseSecondArg,
@@ -21,17 +24,14 @@ export const compress = async (currentPath, query) => {
     } = path.parse(secondArgNormalize)
 
     if (extSecondArg !== '.br') {
-      return process.stdout.write('Invalid input\n')
+      console.log('Invalid input')
+      return
     }
 
-    const inputPathForRead = await cd(
-      currentPath,
-      'cd ' + firstArgNormalize,
-      false
-    )
+    const inputPathForRead = await cd(currentPath, firstArgNormalize, false)
     const inputPathForWriteWithoutFilename = await cd(
       currentPath,
-      'cd ' + dirSecondArg,
+      dirSecondArg,
       false
     )
 
@@ -41,12 +41,14 @@ export const compress = async (currentPath, query) => {
     )
 
     try {
-      const data = await fs.lstat(inputPathForRead)
+      const data = await fsPromises.lstat(inputPathForRead)
       if (!data.isFile()) {
-        return process.stdout.write('Operation failed\n')
+        console.log('Operation failed')
+        return
       }
     } catch {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
+      return
     }
 
     if (
@@ -56,23 +58,26 @@ export const compress = async (currentPath, query) => {
         : currentPath.slice(currentPath.lastIndexOf(path.sep)) !==
           dirSecondArg.slice(dirSecondArg.lastIndexOf(path.sep)))
     ) {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
+      return 
     }
 
     if (await pathExists(inputPathForWrite)) {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
+      return 
     } else {
-      const readable = createReadStream(inputPathForRead, 'utf-8')
+      const readable = fs.createReadStream(inputPathForRead, 'utf-8')
+      const writeable = fs.createWriteStream(inputPathForWrite, 'utf-8')
       const compressBrotli = createBrotliCompress()
-      const writeable = createWriteStream(inputPathForWrite, 'utf-8')
 
       try {
         await pipeline(readable, compressBrotli, writeable)
       } catch {
-        return process.stdout.write('Operation failed\n')
+        console.log('Operation failed')
+        return
       }
     }
   } else {
-    return process.stdout.write(`Invalid input\n`)
+    console.log(`Invalid input`)
   }
 }

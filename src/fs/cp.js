@@ -1,74 +1,60 @@
-import fs from 'fs/promises'
 import path from 'node:path'
-import { createReadStream, createWriteStream } from 'fs'
-import { pipeline } from 'stream/promises'
+import fs from 'node:fs'
+import fsPromises from 'node:fs/promises'
+
+import { pipeline } from 'node:stream/promises'
+
+import { cd } from '../nav/cd.js'
 import { parsePathArgs } from '../utils/parsePathArgs.js'
-import { cd } from './cd.js'
 import { pathExists } from '../utils/pathExists.js'
 
 export const cp = async (currentPath, query) => {
-  const inputPath = path.normalize(query.slice(3))
+  const inputPath = path.normalize(query.trim())
+
   const { firstArg, secondArg } = parsePathArgs(inputPath)
 
-  if (firstArg && secondArg) {
-    let inputPathForWrite
-    let secondArgNormalize = path.normalize(secondArg)
-    const inputPathForRead = await cd(currentPath, 'cd ' + firstArg, false)
+  try {
+    const inputPathForRead = await cd(currentPath, firstArg, false)
     const inputPathForWriteWithoutFilename = await cd(
       currentPath,
-      'cd ' + secondArg,
+      secondArg,
       false
     )
 
-    if (inputPathForRead[inputPathForRead.length - 1] === path.sep) {
-      inputPathForRead = inputPathForRead.slice(0, -1)
-      inputPathForWrite = path.join(
-        inputPathForWriteWithoutFilename,
-        inputPathForRead.slice(inputPathForRead.lastIndexOf(path.sep))
-      )
-    } else {
-      inputPathForWrite = path.join(
-        inputPathForWriteWithoutFilename,
-        inputPathForRead.slice(inputPathForRead.lastIndexOf(path.sep))
-      )
+    const inputPathForWrite = path.join(
+      inputPathForWriteWithoutFilename,
+      path.basename(inputPathForRead)
+    )
+
+    if (!inputPathForRead || !inputPathForWriteWithoutFilename) {
+      console.log('Operation failed')
+      return
     }
 
-    if (secondArgNormalize[secondArgNormalize.length - 1] === path.sep) {
-      secondArgNormalize = secondArgNormalize.slice(0, -1)
-      if (!secondArgNormalize.includes(path.sep))
-        secondArgNormalize = path.sep + secondArgNormalize
+    if (await pathExists(inputPathForWrite)) {
+      console.log('Operation failed')
+      return
     }
 
-    try {
-      const data = await fs.lstat(inputPathForRead)
-      if (!data.isFile()) {
-        return process.stdout.write('Operation failed\n')
-      }
-    } catch {
-      return process.stdout.write('Operation failed\n')
+    const data = await fsPromises.stat(inputPathForRead)
+    if (!data.isFile()) {
+      console.log('Operation failed')
+      return
     }
 
     if (
       currentPath === inputPathForWriteWithoutFilename &&
-      currentPath.slice(currentPath.lastIndexOf(path.sep)) !==
-        secondArgNormalize.slice(secondArgNormalize.lastIndexOf(path.sep))
+      path.basename(currentPath) !== path.basename(inputPathForRead)
     ) {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
+      return
     }
 
-    if (await pathExists(inputPathForWrite)) {
-      return process.stdout.write('Operation failed\n')
-    } else {
-      const readable = createReadStream(inputPathForRead, 'utf-8')
-      const writeable = createWriteStream(inputPathForWrite, 'utf-8')
+    const readable = fs.createReadStream(inputPathForRead)
+    const writeable = fs.createWriteStream(inputPathForWrite)
 
-      try {
-        await pipeline(readable, writeable)
-      } catch {
-        return process.stdout.write('Operation failed\n')
-      }
-    }
-  } else {
-    return process.stdout.write(`Invalid input\n`)
+    await pipeline(readable, writeable)
+  } catch {
+    console.log('Operation failed')
   }
 }

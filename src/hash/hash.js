@@ -1,23 +1,25 @@
 import fs from 'fs/promises'
-import { readFile } from 'node:fs/promises'
-import { cd } from '../fs/cd.js'
+import fsPromises from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+
+import { cd } from '../nav/cd.js'
 
 export const hash = async (currentPath, query) => {
-  const { createHash } = await import('node:crypto')
-  const inputPath = await cd(currentPath, query.slice(2), false)
+  const inputPath = await cd(currentPath, query, false)
 
   try {
     const inputPathCheck = await fs.lstat(inputPath)
     if (inputPathCheck.isFile()) {
-      const content = await readFile(inputPath)
-      const hash = createHash('sha256')
+      const content = await fsPromises.readFile(inputPath)
+      const hashSha = createHash('sha256')
 
-      hash.update(content)
-      process.stdout.write(`${hash.digest('hex')}\n`)
+      hashSha.update(content)
+      console.log(`${hashSha.digest('hex')}`)
     } else {
-      return process.stdout.write('Operation failed\n')
+      console.log('Operation failed')
+      return
     }
   } catch {
-    process.stdout.write('Operation failed\n')
+    console.log('Operation failed')
   }
 }

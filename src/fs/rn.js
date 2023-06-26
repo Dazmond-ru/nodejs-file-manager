@@ -1,52 +1,28 @@
 import path from 'node:path'
-import {
-  rename as renameFile,
-  readFile,
-  access,
-  constants,
-} from 'node:fs/promises'
+import fsPromises from 'node:fs/promises'
+
 import { parsePathArgs } from '../utils/parsePathArgs.js'
-import { cd } from './cd.js'
+import { cd } from '../nav/cd.js'
 
 export const rn = async (currentPath, query) => {
-  const inputPath = path.normalize(query.slice(3))
+  const inputPath = path.normalize(query.trim())
   const { firstArg, secondArg } = parsePathArgs(inputPath)
 
-  if (firstArg && secondArg) {
-    try {
-      let isAccessNewFile = false
-      let newFile
+  try {
+    const prevFilePath = await cd(currentPath, firstArg, false)
+    const newFileName = secondArg.split('"').join('')
 
-      const secondArgWithoutMarks = secondArg.split('"').join('')
-      const previousFile = await cd(currentPath, 'cd ' + firstArg, false)
-
-      if (previousFile[previousFile.length - 1] === path.sep) {
-        previousFile = previousFile.slice(0, -1)
-        newFile = path.join(
-          previousFile.slice(0, previousFile.lastIndexOf(path.sep)),
-          secondArgWithoutMarks.trim()
-        )
-      } else {
-        newFile = path.join(
-          previousFile.slice(0, previousFile.lastIndexOf(path.sep)),
-          secondArgWithoutMarks.trim()
-        )
-      }
-
-      await readFile(previousFile)
-
-      try {
-        await access(newFile, constants.R_OK | constants.W_OK)
-        isAccessNewFile = true
-        process.stdout.write('Operation failed\n')
-      } catch {
-        if (!isAccessNewFile) await renameFile(previousFile, newFile)
-        if (isAccessNewFile) process.stdout.write('Operation failed\n')
-      }
-    } catch {
-      process.stdout.write('Operation failed\n')
+    if (prevFilePath.at(-1) === path.sep) {
+      prevFilePath = prevFilePath.slice(0, -1)
     }
-  } else {
-    process.stdout.write(`Invalid input\n`)
+
+    const newFilePath = path.join(
+      prevFilePath.slice(0, prevFilePath.lastIndexOf(path.sep)),
+      newFileName.trim()
+    )
+
+    await fsPromises.rename(prevFilePath, newFilePath)
+  } catch {
+    console.log('Operation failed')
   }
 }
