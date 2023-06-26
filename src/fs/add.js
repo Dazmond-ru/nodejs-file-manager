@@ -18,7 +18,7 @@ export const add = async (currentPath, query) => {
     fileName.includes('/') ||
     fileName.includes('\\')
   ) {
-    process.stdout.write(`Invalid input\n`)
+    process.stdout.write(`Operation failed\n`)
     return currentPath
   }
 
@@ -34,7 +34,7 @@ export const add = async (currentPath, query) => {
   }
 
   if (countDoubleMarks % 2 === 1) {
-    process.stdout.write(`Invalid input\n`)
+    process.stdout.write(`Operation failed\n`)
     return currentPath
   }
 

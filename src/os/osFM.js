@@ -3,7 +3,7 @@ import os from 'node:os'
 export const osFM = async (query) => {
   const queryCommand = query.slice(3)
   if (queryCommand === '--EOL') {
-    process.stdout.write(JSON.stringify(os.EOL))
+    return process.stdout.write(JSON.stringify(os.EOL))
   }
   if (queryCommand === '--cpus') {
     const allData = os.cpus()
@@ -13,16 +13,17 @@ export const osFM = async (query) => {
         `model: ${item.model}\nspeed: ${item.speed / 1000} GHz\n`
       )
     )
+    return
   }
   if (queryCommand === '--homedir') {
-    process.stdout.write(os.homedir())
+    return process.stdout.write(os.homedir())
   }
   if (queryCommand === '--username') {
-    process.stdout.write(os.userInfo().username)
+    return process.stdout.write(os.userInfo().username)
   }
   if (queryCommand === '--architecture') {
-    process.stdout.write(os.arch())
+    return process.stdout.write(os.arch())
   } else {
-    process.stdout.write('Invalid input\n')
+    return process.stdout.write('Invalid input\n')
   }
 }
