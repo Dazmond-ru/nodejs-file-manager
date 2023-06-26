@@ -21,12 +21,14 @@ export const cd = async (prevPath, chunkStringified, isDirectoryCheck) => {
     return prevPath
   }
 
-  let inputPathCheck = false
   let countDoubleMarks = 0
   let isDoubleMarksInDiskName = false
   let isInvalidPath = false
   let inputPathNormalize = path.normalize(inputPath)
-  if (inputPathNormalize[inputPathNormalize.length - 1] === path.sep)
+  if (
+    inputPathNormalize[inputPathNormalize.length - 1] === path.sep &&
+    inputPathNormalize.length !== 1
+  )
     inputPathNormalize = inputPathNormalize.slice(0, -1)
 
   const inputPathRes = inputPathNormalize
@@ -73,14 +75,7 @@ export const cd = async (prevPath, chunkStringified, isDirectoryCheck) => {
     if (/^[A-Za-z]:{1}/.test(inputPath)) {
       if (inputPath.length === 3 && inputPath[inputPath.length - 1] === '.')
         inputPath = inputPath.slice(0, -1) + `${path.sep}`
-      // if (await pathExists(path.join(inputPath))) {
-      //   return inputPath;
-      // } else {
-      //   process.stdout.write(`Operation failed\n`);
-      //   return prevPath;
-      // }
       try {
-        console.log('chDirExitFirst', inputPath)
         chdir(inputPath)
         return inputPath
       } catch (err) {
@@ -90,7 +85,6 @@ export const cd = async (prevPath, chunkStringified, isDirectoryCheck) => {
     }
 
     try {
-      console.log('chDirExitSecond', path.join(prevPath, inputPath))
       chdir(path.join(prevPath, inputPath))
       return path.join(prevPath, inputPath)
     } catch (err) {
@@ -98,33 +92,6 @@ export const cd = async (prevPath, chunkStringified, isDirectoryCheck) => {
       return prevPath
     }
   }
-
-  // if (isDirectoryCheck) {
-  //   try {
-
-  //     inputPathCheck = await fs.lstat(path.join(prevPath, inputPath));
-  //   } catch {
-  //     process.stdout.write(`Operation failed\n`);
-  //     return prevPath;
-  //   }
-
-  //   if (/^[A-Za-z]:{1}/.test(inputPath)) {
-  //     if (inputPath.length === 3 && inputPath[inputPath.length - 1] === '.') inputPath = inputPath.slice(0, -1) + `${path.sep}`
-  //       if (await pathExists(path.join(inputPath))) {
-  //         return inputPath;
-  //       } else {
-  //         process.stdout.write(`Operation failed\n`);
-  //         return prevPath;
-  //       }
-  //   }
-
-  //   if (await pathExists(path.join(prevPath, inputPath)) && inputPathCheck.isDirectory()) {
-  //     return path.join(prevPath, inputPath);
-  //   } else {
-  //     process.stdout.write(`Operation failed\n`);
-  //     return prevPath;
-  //   }
-  // }
 
   if (!isDirectoryCheck) {
     if (/^[A-Za-z]:{1}/.test(inputPath)) {
