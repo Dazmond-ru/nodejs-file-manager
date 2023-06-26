@@ -14,7 +14,7 @@ const pathExists = (path) =>
 export const cp = async (currentPath, query) => {
   const inputPath = path.normalize(query.slice(3))
   const { firstArg, secondArg } = parsePathArgs(inputPath)
-  console.log(currentPath, query)
+
   if (firstArg && secondArg) {
     let inputPathForWrite
     let secondArgNormalize = path.normalize(secondArg)
