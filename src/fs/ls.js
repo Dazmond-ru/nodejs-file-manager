@@ -26,6 +26,6 @@ export const list = async (currentPath) => {
     }
     return directoriesResult.concat(filesResult)
   } catch {
-    process.stdout.write('Operation failed')
+    process.stdout.write('Operation failed\n')
   }
 }

@@ -42,10 +42,10 @@ export const cp = async (currentPath, query) => {
     try {
       const data = await fs.lstat(inputPathForRead)
       if (!data.isFile()) {
-        return process.stdout.write('Operation failed\n111')
+        return process.stdout.write('Operation failed\n')
       }
     } catch {
-      return process.stdout.write('Operation failed\n222')
+      return process.stdout.write('Operation failed\n')
     }
 
     if (
@@ -53,11 +53,11 @@ export const cp = async (currentPath, query) => {
       currentPath.slice(currentPath.lastIndexOf(path.sep)) !==
         secondArgNormalize.slice(secondArgNormalize.lastIndexOf(path.sep))
     ) {
-      return process.stdout.write('Operation failed\n333')
+      return process.stdout.write('Operation failed\n')
     }
 
     if (await pathExists(inputPathForWrite)) {
-      return process.stdout.write('Operation failed\n444')
+      return process.stdout.write('Operation failed\n')
     } else {
       const readable = createReadStream(inputPathForRead, 'utf-8')
       const writeable = createWriteStream(inputPathForWrite, 'utf-8')
@@ -65,10 +65,10 @@ export const cp = async (currentPath, query) => {
       try {
         await pipeline(readable, writeable)
       } catch {
-        return process.stdout.write('Operation failed\n555')
+        return process.stdout.write('Operation failed\n')
       }
     }
   } else {
-    return process.stdout.write(`Invalid input\n666`)
+    return process.stdout.write(`Invalid input\n`)
   }
 }

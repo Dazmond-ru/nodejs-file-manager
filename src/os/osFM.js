@@ -23,6 +23,6 @@ export const osFM = async (query) => {
   if (queryCommand === '--architecture') {
     process.stdout.write(os.arch())
   } else {
-    process.stdout.write('Invalid input')
+    process.stdout.write('Invalid input\n')
   }
 }
