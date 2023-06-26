@@ -9,9 +9,9 @@ export const rm = async (currentPath, query) => {
     if (inputPathCheck.isFile()) {
       await fs.unlink(inputPath)
     } else {
-      return process.stdout.write('Operation failed\n')
+      return process.stdout.write('Operation failed\n888')
     }
   } catch {
-    return process.stdout.write('Operation failed\n')
+    return process.stdout.write('Operation failed\n999')
   }
 }

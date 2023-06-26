@@ -14,7 +14,7 @@ const pathExists = (path) =>
 export const cp = async (currentPath, query) => {
   const inputPath = path.normalize(query.slice(3))
   const { firstArg, secondArg } = parsePathArgs(inputPath)
-
+  console.log(currentPath, query)
   if (firstArg && secondArg) {
     let inputPathForWrite
     let secondArgNormalize = path.normalize(secondArg)
@@ -24,8 +24,6 @@ export const cp = async (currentPath, query) => {
       'cd ' + secondArg,
       false
     )
-
-    const readable = createReadStream(inputPathForRead, 'utf-8')
 
     if (inputPathForRead[inputPathForRead.length - 1] === path.sep) {
       inputPathForRead = inputPathForRead.slice(0, -1)
@@ -49,10 +47,10 @@ export const cp = async (currentPath, query) => {
     try {
       const data = await fs.lstat(inputPathForRead)
       if (!data.isFile()) {
-        return process.stdout.write('Operation failed\n')
+        return process.stdout.write('Operation failed\n111')
       }
     } catch {
-      return process.stdout.write('Operation failed\n')
+      return process.stdout.write('Operation failed\n222')
     }
 
     if (
@@ -60,21 +58,22 @@ export const cp = async (currentPath, query) => {
       currentPath.slice(currentPath.lastIndexOf(path.sep)) !==
         secondArgNormalize.slice(secondArgNormalize.lastIndexOf(path.sep))
     ) {
-      return process.stdout.write('Operation failed\n')
+      return process.stdout.write('Operation failed\n333')
     }
 
     if (await pathExists(inputPathForWrite)) {
-      process.stdout.write('Operation failed\n')
+      return process.stdout.write('Operation failed\n444')
     } else {
+      const readable = createReadStream(inputPathForRead, 'utf-8')
       const writeable = createWriteStream(inputPathForWrite, 'utf-8')
 
       try {
         await pipeline(readable, writeable)
       } catch {
-        process.stdout.write('Operation failed\n')
+        return process.stdout.write('Operation failed\n555')
       }
     }
   } else {
-    process.stdout.write(`Invalid input\n`)
+    return process.stdout.write(`Invalid input\n666`)
   }
 }
