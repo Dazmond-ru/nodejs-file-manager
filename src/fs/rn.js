@@ -1,5 +1,4 @@
-import path, { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import {
   rename as renameFile,
   readFile,
@@ -19,20 +18,20 @@ export const rn = async (currentPath, query) => {
     try {
       let isAccessNewFile = false
       let newFile
-      let newFilePath
+
       const secondArgWithoutMarks = secondArg.split('"').join('')
       const previousFile = await cd(currentPath, 'cd ' + firstArg, false)
       console.log(previousFile)
 
-      if (previousFile[previousFile.length - 1] === '\\') {
+      if (previousFile[previousFile.length - 1] === path.sep) {
         previousFile = previousFile.slice(0, -1)
         newFile = path.join(
-          previousFile.slice(0, previousFile.lastIndexOf('\\')),
+          previousFile.slice(0, previousFile.lastIndexOf(path.sep)),
           secondArgWithoutMarks.trim()
         )
       } else {
         newFile = path.join(
-          previousFile.slice(0, previousFile.lastIndexOf('\\')),
+          previousFile.slice(0, previousFile.lastIndexOf(path.sep)),
           secondArgWithoutMarks.trim()
         )
       }
@@ -44,13 +43,13 @@ export const rn = async (currentPath, query) => {
       try {
         await access(newFile, constants.R_OK | constants.W_OK)
         isAccessNewFile = true
-        process.stdout.write('Operation failed\n1111111111')
+        process.stdout.write('Operation failed\n')
       } catch {
         if (!isAccessNewFile) await renameFile(previousFile, newFile)
         if (isAccessNewFile) process.stdout.write('Operation failed\n')
       }
     } catch {
-      process.stdout.write('Operation failed\n11111')
+      process.stdout.write('Operation failed\n')
     }
   } else {
     process.stdout.write(`Invalid input\n`)
