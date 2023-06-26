@@ -1,31 +1,38 @@
 import os from 'node:os'
 import { parseArg } from './cli/args.js'
 import { up } from './fs/up.js'
+import { cd } from './fs/cd.js'
+import * as readline from 'node:readline/promises'
+import { stdin as input, stdout as output } from 'process'
 
 let currentPath = os.homedir()
 const username = parseArg()
-process.stdout.write(`You are currently in ${currentPath}\n`)
+const rl = readline.createInterface({ input, output })
 
-const echoInput = (chunk) => {
-  const inputChunk = chunk.toString().trim()
+rl.setPrompt(`You are currently in ${currentPath}\n\n`)
+rl.prompt()
 
-  if (inputChunk === '.exit') {
-    process.stdout.write(
-      `Thank you for using File Manager, ${username}, goodbye!`
-    )
-    process.exit()
+rl.on('line', async (query) => {
+  if (query === '.exit') {
+    rl.setPrompt(`\nThank you for using File Manager, ${username}, goodbye!`)
+    rl.prompt()
+    rl.close()
   }
-  if (inputChunk === 'up') {
-    currentPath = up(currentPath) + '\n'
+
+  if (query === 'up') {
+    currentPath = up(currentPath)
+    rl.setPrompt(`You are currently in ${currentPath}\n`)
+    rl.prompt()
   }
-  process.stdout.write(`You are currently in ${currentPath}`)
-}
 
-process.stdin.on('data', echoInput)
+  if (query.startsWith('cd ')) {
+    currentPath = await cd(currentPath, query)
+    rl.setPrompt(`You are currently in ${currentPath}\n`)
+    rl.prompt()
+  }
+})
 
-process.on('SIGINT', () => {
-  process.stdout.write(
-    `\nThank you for using File Manager, ${username}, goodbye!`
-  )
-  process.exit()
+rl.on('SIGINT', () => {
+  rl.write(`\nThank you for using File Manager, ${username}, goodbye!`)
+  rl.close()
 })
