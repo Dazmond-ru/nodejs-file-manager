@@ -1,31 +1,31 @@
-import path from 'node:path'
-import { readdir } from 'node:fs/promises'
+import path from "node:path";
+import { readdir } from "node:fs/promises";
 
 export const list = async (currentPath) => {
   try {
-    let directoriesResult = []
-    let filesResult = []
+    let directoriesResult = [];
+    let filesResult = [];
 
     const allData = await readdir(path.normalize(currentPath), {
       withFileTypes: true,
-    })
+    });
     const directories = allData
       .filter((item) => item.isDirectory())
       .map((item) => item.name)
-      .sort()
+      .sort();
     const files = allData
       .filter((item) => item.isFile())
       .map((item) => item.name)
-      .sort()
+      .sort();
 
     for (let i = 0; i < directories.length; i++) {
-      directoriesResult.push({ Name: directories[i], Type: 'directory' })
+      directoriesResult.push({ Name: directories[i], Type: "directory" });
     }
     for (let i = 0; i < files.length; i++) {
-      filesResult.push({ Name: files[i], Type: 'file' })
+      filesResult.push({ Name: files[i], Type: "file" });
     }
-    return directoriesResult.concat(filesResult)
+    return directoriesResult.concat(filesResult);
   } catch {
-    process.stdout.write('Operation failed\n')
+    process.stdout.write("Operation failed\n");
   }
-}
+};
