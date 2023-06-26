@@ -1,8 +1,9 @@
 {
   "name": "file-manager",
   "version": "1.0.0",
-  "description": "## Description",
+  "description": "File Manager",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
