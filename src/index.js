@@ -6,6 +6,8 @@ import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'process';
 import { list } from './fs/ls.js';
 import { cat } from './fs/cat.js';
+import { add } from './fs/add.js';
+import { rn } from './fs/rn.js';
 
 let currentPath = os.homedir();
 const username = parseArg(currentPath);
@@ -40,9 +42,21 @@ rl.on( 'line' , async (query) => {
     process.stdout.write(`\nYou are currently in ${currentPath}\n`);
     rl.resume();
   }   
+
+  if (query.startsWith('add ')) {
+    await add(currentPath, query);
+    process.stdout.write(`\nYou are currently in ${currentPath}\n`);
+  }   
+
+  if (query.startsWith('rn ')) {
+    await rn(currentPath, query);
+    process.stdout.write(`\nYou are currently in ${currentPath}\n`);
+  }  
 });
 
 rl.on('SIGINT', async () => {
     process.stdout.write(`\nThank you for using File Manager, ${username}, goodbye!`); 
     rl.close();
 });
+
+

@@ -69,7 +69,6 @@ export const cd = async (prevPath, chunkStringified, isDirectoryCheck) => {
   if (isDirectoryCheck) {
     if (/^[A-Za-z]:{1}/.test(inputPath)) {
       if (inputPath.length === 3 && inputPath[inputPath.length - 1] === '.') inputPath = inputPath.slice(0, -1) + `${path.sep}`
-       
         try {
           console.log('chDirExitFirst', inputPath);
           chdir(inputPath);
