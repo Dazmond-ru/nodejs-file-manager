@@ -1,12 +1,12 @@
 export const parseArg = () => {
-  const stringArg = process.argv.slice(2).join('')
+    const stringArg = process.argv.slice(2).join('')
 
-  let username = 'guest'
+    let username = 'guest'
 
-  if (stringArg.startsWith('--username=')) {
-    username = stringArg.slice(11)
+    if (stringArg.startsWith('--username=')) {
+        username = stringArg.slice(11)
+        return username
+    }
+
     return username
-  } 
-
-  return username
 }
